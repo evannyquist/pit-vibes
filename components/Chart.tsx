@@ -3,7 +3,6 @@ import {
   createChart,
   IChartApi,
   ISeriesApi,
-  LineSeries,
   ColorType,
   type UTCTimestamp,
 } from "lightweight-charts";
@@ -11,13 +10,37 @@ import { useEffect, useRef } from "react";
 import { usePrice } from "./PriceContext";
 import { useSettings } from "./SettingsContext";
 
+function addLineCompat(
+  chart: IChartApi,
+  options: { color?: string; lineWidth?: number }
+): ISeriesApi<"Line"> {
+  // Newer API (>=5.1)
+  const anyChart = chart as any;
+  if (typeof anyChart.addLineSeries === "function") {
+    return anyChart.addLineSeries(options) as ISeriesApi<"Line">;
+  }
+  // Transitional v5.0.x APIs
+  if (typeof anyChart.addSeries === "function") {
+    try {
+      // Most reliable on 5.0.9 runtime is lowercase "line"
+      // @ts-expect-error typings mismatch in 5.0.9
+      return anyChart.addSeries("line", options) as ISeriesApi<"Line">;
+    } catch {
+      // Some builds still accept "Line"
+      // @ts-expect-error typings mismatch in 5.0.9
+      return anyChart.addSeries("Line", options) as ISeriesApi<"Line">;
+    }
+  }
+  throw new Error("Incompatible lightweight-charts version: cannot add line series");
+}
+
+
 export default function Chart() {
   const container = useRef<HTMLDivElement>(null);
 
   // Refs for chart, series, timer, and last price
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<typeof LineSeries> | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Line"> | null>(null);  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const priceRef = useRef<number>(100);
 
   const { setPrice } = usePrice();
@@ -36,8 +59,10 @@ export default function Chart() {
     });
     chartRef.current = chart;
 
-    const line = chart.addSeries(LineSeries, { lineWidth: 2, color: "#1e40af" });
+    // replace your current addSeries line with:
+    const line = chart.addLineSeries({ color: "#22d3ee", lineWidth: 2 });
     seriesRef.current = line;
+
 
     // Handle responsive width
     const handleResize = () => {
