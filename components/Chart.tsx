@@ -23,11 +23,9 @@ function addLineCompat(
   if (typeof anyChart.addSeries === "function") {
     try {
       // Most reliable on 5.0.9 runtime is lowercase "line"
-      // @ts-expect-error typings mismatch in 5.0.9
       return anyChart.addSeries("line", options) as ISeriesApi<"Line">;
     } catch {
       // Some builds still accept "Line"
-      // @ts-expect-error typings mismatch in 5.0.9
       return anyChart.addSeries("Line", options) as ISeriesApi<"Line">;
     }
   }
