@@ -38,7 +38,7 @@ function applyTrade(s: PositionState, t: Trade): PositionState {
   if (position !== 0 && Math.sign(position) !== Math.sign(position + signedQty)) {
     const closeQty = Math.abs(position);
     const openQty = Math.abs(signedQty) - closeQty;
-    realizedPnl += (t.price - avgPrice) * (-Math.sign(position)) * closeQty;
+    realizedPnl += (t.price - avgPrice) * (Math.sign(position)) * closeQty;
     position = 0;
     avgPrice = 0;
     if (openQty > 0) {
@@ -57,7 +57,7 @@ function applyTrade(s: PositionState, t: Trade): PositionState {
       } else {
         // partial reduce
         const closingQty = Math.min(Math.abs(position), Math.abs(signedQty));
-        realizedPnl += (t.price - avgPrice) * (-Math.sign(position)) * closingQty;
+        realizedPnl += (t.price - avgPrice) * (Math.sign(position)) * closingQty;
         if (Math.sign(newPos) === 0) avgPrice = 0;
       }
     }

@@ -1,14 +1,22 @@
 "use client";
 import { useState } from "react";
 import { useTrading } from "@/hooks/useTrading";
+import { usePrice } from "@/components/PriceContext";
 
-export default function TradePanel({ last }: { last: number }) {
+export default function TradePanel() {
+  const { last } = usePrice();      // ✅ shared price
   const { trade } = useTrading();
   const [qty, setQty] = useState(1);
+  const [flashSide, setFlashSide] = useState<"BUY" | "SELL" | null>(null);
 
-  const submit = (side: "BUY" | "SELL") => {
+  const handleTrade = (side: "BUY" | "SELL") => {
     trade({ ts: Date.now(), side, qty: Math.max(1, qty), price: last });
+    setFlashSide(side);
+    setTimeout(() => setFlashSide(null), 200);
   };
+
+  const buyFlash = flashSide === "BUY" ? "bg-green-600 text-white animate-press" : "hover:bg-green-700 hover:text-white";
+  const sellFlash = flashSide === "SELL" ? "bg-red-600 text-white animate-press" : "hover:bg-red-700 hover:text-white";
 
   return (
     <div className="rounded-2xl p-4 shadow border grid gap-3">
@@ -25,12 +33,8 @@ export default function TradePanel({ last }: { last: number }) {
         <div className="ml-auto text-sm">Last: {last.toFixed(2)}</div>
       </div>
       <div className="flex gap-3">
-        <button onClick={() => submit("BUY")} className="rounded-2xl px-4 py-2 shadow border hover:opacity-90">
-          Buy
-        </button>
-        <button onClick={() => submit("SELL")} className="rounded-2xl px-4 py-2 shadow border hover:opacity-90">
-          Sell
-        </button>
+        <button onClick={() => handleTrade("BUY")}  className={`rounded-2xl px-4 py-2 shadow border transition-all duration-150 active:scale-95 ${buyFlash}`}>Buy</button>
+        <button onClick={() => handleTrade("SELL")} className={`rounded-2xl px-4 py-2 shadow border transition-all duration-150 active:scale-95 ${sellFlash}`}>Sell</button>
       </div>
     </div>
   );

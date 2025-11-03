@@ -6,6 +6,18 @@
   --color-bg: #0f172a;
 }
 
+/* 1) Keyframes live at top-level in v4 */
+@keyframes press {
+  0%   { transform: scale(1); }
+  60%  { transform: scale(0.90); } /* a bit deeper for a noticeable tap */
+  100% { transform: scale(1); }
+}
+
+/* 2) Define a real utility */
+@utility animate-press {
+  animation: press 0.12s cubic-bezier(.2,.7,.3,1);
+}
+
 @layer base {
   html {
     font-family: var(--font-sans);

@@ -9,7 +9,8 @@ const LEVELS = 5;   // depth on each side
 const TICK = 0.05;  // price spacing between levels
 
 export default function OrderBook() {
-  const { price } = usePrice();           // shared last price from the chart
+  const { last } = usePrice();           // shared last price from the chart
+  const price = last;
   const { speedMs } = useSettings();      // shared cadence from TopBar slider
   const [bids, setBids] = useState<Level[]>([]);
   const [asks, setAsks] = useState<Level[]>([]);

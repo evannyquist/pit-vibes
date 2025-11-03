@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { useSettings } from "./SettingsContext";
+import { usePrice } from "@/components/PriceContext";
 
 export default function TopBar() {
-  const { pitMode, setPitMode, speedMs, setSpeedMs, showGreeks, setShowGreeks } = useSettings();
+  const { pitMode, setPitMode, speedMs, setSpeedMs, showGreeks, setShowGreeks } =
+    useSettings();
+  const { last } = usePrice(); // ✅ shared price
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Auto play/pause crowd noise
@@ -13,7 +16,9 @@ export default function TopBar() {
     if (pitMode) {
       a.loop = true;
       a.volume = 0.2;
-      a.play().catch(() => {/* ignore autoplay block */});
+      a.play().catch(() => {
+        /* ignore autoplay block */
+      });
     } else {
       a.pause();
       a.currentTime = 0;
@@ -58,9 +63,17 @@ export default function TopBar() {
           />
           <span className="text-sm">⚖️ Show Greeks</span>
         </label>
+
+        {/* 📈 Live price display */}
+        <div className="ml-auto flex items-baseline gap-2 font-mono">
+          <span className="text-xs opacity-60">LAST</span>
+          <span className="text-lg font-semibold text-cyan-300">
+            {last.toFixed(2)}
+          </span>
+        </div>
       </div>
 
-      {/* audio element (file in /public) */}
+      {/* ambient audio */}
       <audio ref={audioRef} src="/pit-ambience.mp3" />
     </div>
   );
